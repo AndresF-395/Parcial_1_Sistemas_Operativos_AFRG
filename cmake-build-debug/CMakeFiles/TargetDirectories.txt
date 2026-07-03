@@ -1,0 +1,3 @@
+C:/Users/DEIBY/CLionProjects/Parcial SO/cmake-build-debug/CMakeFiles/ProyectoMLQ.dir
+C:/Users/DEIBY/CLionProjects/Parcial SO/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/DEIBY/CLionProjects/Parcial SO/cmake-build-debug/CMakeFiles/rebuild_cache.dir
