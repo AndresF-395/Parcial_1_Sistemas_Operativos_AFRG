@@ -10,22 +10,21 @@ int main() {
 
     Scheduler scheduler;
 
-    // Configuración Modular Estratégica de las Colas Multinivel
-    // Q1 posee máxima prioridad y corre Round Robin con Quantum de 3
-    scheduler.configureQueue(1, std::make_unique<RoundRobinPolicy>(3.0f));
+    // ASIGNACIÓN EXACTA DE COLAS MULTINIVEL SOLICITADAS:
+    // Cola 1 (Prioridad Máxima): Round Robin con Quantum = 1
+    scheduler.configureQueue(1, std::make_unique<RoundRobinPolicy>(1.0f));
 
-    // Q2 posee prioridad media y corre Round Robin con Quantum de 5
-    scheduler.configureQueue(2, std::make_unique<RoundRobinPolicy>(5.0f));
+    // Cola 2 (Prioridad Media): Round Robin con Quantum = 3
+    scheduler.configureQueue(2, std::make_unique<RoundRobinPolicy>(3.0f));
 
-    // Q3 posee prioridad baja y corre Shortest Job First (Fácilmente intercambiable por STCF o Priority)
+    // Cola 3 (Prioridad Baja): Shortest Job First No-Preemptivo
     scheduler.configureQueue(3, std::make_unique<SJFPolicy>());
 
-    // Carga de Procesos desde el Sistema de Archivos
-    // AHORA SOLO LEE EL ARCHIVO, NO LO SOBREESCRIBE
+    // Carga dinámica de procesos desde archivo estructurado
     auto processes = FileManager::readInputFile(inputFile);
     if (processes.empty()) {
-        std::cerr << "Abortando: Ningún proceso válido para inicializar el sistema." << std::endl;
-        std::cerr << "Por favor, verifica que 'input.txt' exista en el directorio correcto y tenga datos." << std::endl;
+        std::cerr << "Abortando: Ningun proceso valido para inicializar el sistema." << std::endl;
+        std::cerr << "Por favor, verifica que 'input.txt' exista en el directorio y contenga datos." << std::endl;
         return 1;
     }
 
@@ -35,7 +34,8 @@ int main() {
     }
 
     std::cout << "=========================================" << std::endl;
-    std::cout << "Iniciando Simulador de Planificación MLQ" << std::endl;
+    std::cout << "Iniciando Simulador de Planificacion MLQ" << std::endl;
+    std::cout << "Configuracion: Q1=RR(1) -> Q2=RR(3) -> Q3=SJF" << std::endl;
     std::cout << "=========================================" << std::endl;
 
     scheduler.runSimulation();
@@ -43,7 +43,7 @@ int main() {
     std::cout << "Simulacion finalizada exitosamente." << std::endl;
     std::cout << "Escribiendo reporte metrico en: " << outputFile << "..." << std::endl;
 
-    // Volcado Final de Reportes
+    // Volcado de métricas finales
     auto results = scheduler.getResults();
     FileManager::writeOutputFile(outputFile, results);
 

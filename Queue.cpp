@@ -9,17 +9,17 @@ std::shared_ptr<Process> RoundRobinPolicy::selectNext(std::vector<std::shared_pt
                                                       float& quantumTracker) {
     if (readyPool.empty()) return nullptr;
 
-    // Si hay un proceso en ejecución y aún no se vence su quantum, retenerlo
+    // Si el proceso actual sigue en la cola y no ha superado el quantum asignado, retener CPU
     if (currentRunning && quantumTracker < quantum) {
         for (auto& p : readyPool) {
             if (p == currentRunning) return p;
         }
     }
 
-    // El quantum ha vencido o el proceso actual terminó
+    // El quantum expiró o el proceso terminó voluntariamente
     quantumTracker = 0.0f;
     if (currentRunning && !readyPool.empty() && readyPool.front() == currentRunning) {
-        // Enviar al final de la cola circular
+        // Rotación de la cola: envía el elemento al final para cumplir el ciclo de Round Robin
         std::rotate(readyPool.begin(), readyPool.begin() + 1, readyPool.end());
     }
 
@@ -30,14 +30,17 @@ std::shared_ptr<Process> RoundRobinPolicy::selectNext(std::vector<std::shared_pt
 std::shared_ptr<Process> SJFPolicy::selectNext(std::vector<std::shared_ptr<Process>>& readyPool, 
                                                std::shared_ptr<Process> currentRunning, 
                                                float& quantumTracker) {
+    (void)quantumTracker; // Evitar advertencia de variable sin usar
     if (readyPool.empty()) return nullptr;
-    // No-preemptivo: si ya hay uno ejecutándose, continuar hasta que termine
+    
+    // Al ser No-Preemptivo, si hay un proceso ejecutándose, se le respeta hasta el final
     if (currentRunning) {
         for (auto& p : readyPool) {
             if (p == currentRunning) return p;
         }
     }
-    // Seleccionar el de menor Burst Time inicial
+    
+    // Si la CPU está libre, busca el proceso con el menor Burst Time total
     auto minIt = readyPool.begin();
     for (auto it = readyPool.begin(); it != readyPool.end(); ++it) {
         if ((*it)->burstTime < (*minIt)->burstTime) {
@@ -45,42 +48,6 @@ std::shared_ptr<Process> SJFPolicy::selectNext(std::vector<std::shared_ptr<Proce
         }
     }
     return *minIt;
-}
-
-// --- STCF POLICY ---
-std::shared_ptr<Process> STCFPolicy::selectNext(std::vector<std::shared_ptr<Process>>& readyPool, 
-                                                std::shared_ptr<Process> currentRunning, 
-                                                float& quantumTracker) {
-    (void)currentRunning; // Suprimir warnings de desuso
-    (void)quantumTracker;
-    if (readyPool.empty()) return nullptr;
-    
-    // Preemptivo: Buscar siempre el de menor tiempo restante a cada tick
-    auto minIt = readyPool.begin();
-    for (auto it = readyPool.begin(); it != readyPool.end(); ++it) {
-        if ((*it)->remainingTime < (*minIt)->remainingTime) {
-            minIt = it;
-        }
-    }
-    return *minIt;
-}
-
-// --- PRIORITY POLICY ---
-std::shared_ptr<Process> PriorityPolicy::selectNext(std::vector<std::shared_ptr<Process>>& readyPool, 
-                                                    std::shared_ptr<Process> currentRunning, 
-                                                    float& quantumTracker) {
-    (void)currentRunning;
-    (void)quantumTracker;
-    if (readyPool.empty()) return nullptr;
-
-    // Mayor valor numérico indica mayor prioridad externa
-    auto maxIt = readyPool.begin();
-    for (auto it = readyPool.begin(); it != readyPool.end(); ++it) {
-        if ((*it)->priority > (*maxIt)->priority) {
-            maxIt = it;
-        }
-    }
-    return *maxIt;
 }
 
 // --- QUEUE IMPLEMENTATION ---

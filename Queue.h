@@ -9,44 +9,28 @@
 class SchedulingPolicy {
 public:
     virtual ~SchedulingPolicy() = default;
-    virtual std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool,
-                                                std::shared_ptr<Process> currentRunning,
+    virtual std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool, 
+                                                std::shared_ptr<Process> currentRunning, 
                                                 float& quantumTracker) = 0;
 };
 
-// Política 1: Round Robin (RR)
+// Política 1: Round Robin (RR) - Soporta cualquier quantum mediante inicialización
 class RoundRobinPolicy : public SchedulingPolicy {
 private:
     float quantum;
 public:
     explicit RoundRobinPolicy(float q);
-    std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool,
-                                                std::shared_ptr<Process> currentRunning,
-                                                float& quantumTracker) override;
+    std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool, 
+                                        std::shared_ptr<Process> currentRunning, 
+                                        float& quantumTracker) override;
 };
 
 // Política 2: Shortest Job First (SJF) No Preemptivo
 class SJFPolicy : public SchedulingPolicy {
 public:
-    std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool,
-                                                std::shared_ptr<Process> currentRunning,
-                                                float& quantumTracker) override;
-};
-
-// Política 3: Shortest Remaining Time First (STCF) Preemptivo
-class STCFPolicy : public SchedulingPolicy {
-public:
-    std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool,
-                                                std::shared_ptr<Process> currentRunning,
-                                                float& quantumTracker) override;
-};
-
-// Política 4: Prioridad Explicita Interna
-class PriorityPolicy : public SchedulingPolicy {
-public:
-    std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool,
-                                                std::shared_ptr<Process> currentRunning,
-                                                float& quantumTracker) override;
+    std::shared_ptr<Process> selectNext(std::vector<std::shared_ptr<Process>>& readyPool, 
+                                        std::shared_ptr<Process> currentRunning, 
+                                        float& quantumTracker) override;
 };
 
 // Clase Contenedora Queue (Cola de Planificación)
